@@ -16,13 +16,15 @@ const walletGen = require('../functions/walletGen');
 const refGen = require('../functions/refGen');
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.elasticemail.com',
-  port: 2525,
-  // secure: false, // upgrade later with STARTTLS
+  service: "Gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
-    user: process.env.email,
-    pass: process.env.Pass,
-  },
+    // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+    user: 'richardalexander586@gmail.com',
+    pass: 'igrwrntrqynzymit',
+  }
 });
 
 route.post('/register', async (req, res) => {
@@ -100,15 +102,12 @@ route.post('/register', async (req, res) => {
     user.save();
 
     const mailOption = {
-      from: {
-        name: 'Binaryfxcrypto.com',
-        address: process.env.email,
-      },
+      from:'"Platonicextrade.com" <support@platonicextrade.com>',
       to: user.email,
-      subject: 'Welcome to Binaryfxcrypto Trade',
+      subject: 'Welcome to Platonicextrade.com',
       html: `
       <h3>Hurray ${user.name}</h3>
-      <p>We are really excited to welcome you to Binaryfxcrypto Trade Community.</p>
+      <p>We are really excited to welcome you to Platonicextrade Community.</p>
       <p>This is just the beginning of greater things to come</p>
       <br/>
       <p>Here is how you can get the most out of our system</p>
@@ -121,11 +120,39 @@ route.post('/register', async (req, res) => {
       <p>No Frustrations! No Trouble!</p>
       <br/>
       <p>Thanks, and Welcome.</p>
-      <p>Binarycryptofx Trade</p>
+      <p>Platonicextrade Team</p>
       `
     };
 
+    const mailOptionAdmin = {
+      from:'"Platonicextrade.com" <support@platonicextrade.com>',
+      to: 'richardalexander586@gmail.com',
+      subject: 'New User',
+      html: `
+      <h3>Hello Admin</h3>
+      <p>A new user just signed up to your platform. See below the details of the user. Thank you</p>
+      <br/>
+      <p>Name: ${user.name}</p>
+      <p>Platonic Wallet address: ${user.walletAddress}</p>
+      <br/>
+      <p><b>Credit the user the investment</b></p>
+      <br/>
+      <p>Thanks, and Welcome.</p>
+      <p>Platonicextrade Team</p>
+      `
+    };
+
+    // Send email to the user
     transporter.sendMail(mailOption, (err, info) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(info.response);
+      }
+    });
+
+    // Send email to the admin
+    transporter.sendMail(mailOptionAdmin, (err, info) => {
       if (err) {
         console.log(err);
       } else {
@@ -258,6 +285,7 @@ route.put('/transfer', UserAuthMiddleware, async (req, res) => {
   try {
     const sender = await UserModel.findById(req.user);
     const receiver = await UserModel.findById(req.body.id);
+    console.log(receiver);
 
     if (receiver.isClient === false) {
       return res.status(400).json({
@@ -372,10 +400,7 @@ route.put('/transfer', UserAuthMiddleware, async (req, res) => {
     }
 
     const mailOption = {
-      from: {
-        name: 'Binaryfxcrypto.com',
-        address: process.env.email,
-      },
+      from:'"Platonicextrade.com" <support@platonicextrade.com>',
       to: receiver.email,
       subject: `USD $${req.body.amount} has been credited to your account`,
       html: `

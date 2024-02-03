@@ -15,6 +15,7 @@ require('dotenv').config();
       console.log(chalk.yellow('The Database is ready to establish connection!!'));
     });
   } catch (error) {
+    console.log(chalk.blue(error));
     console.log(chalk.red('The Database did not Connect!!!'));
   }
 
