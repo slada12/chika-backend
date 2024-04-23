@@ -316,6 +316,12 @@ route.put('/transfer', UserAuthMiddleware, async (req, res) => {
       });
     }
 
+    if (sender.isClient === true) {
+      return res.status(400).json({
+        message: 'You are forbidden to send Money',
+      });
+    };
+
     let profit;
     let dateToEnd;
 
