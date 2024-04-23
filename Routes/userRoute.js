@@ -282,10 +282,27 @@ route.post('/receipient', UserAuthMiddleware, async (req, res) => {
 });
 
 route.put('/transfer', UserAuthMiddleware, async (req, res) => {
+  // Routes to send client the profit
   try {
+    // console.log(req.body.id);
     const sender = await UserModel.findById(req.user);
-    const receiver = await UserModel.findById(req.body.id);
-    console.log(receiver);
+    // const receiver = await UserModel.findById(req.body.id);
+    // const recemail = await UserModel.findOne({ email: req.body.email });
+    let receiver;
+
+    if (req.body.id === undefined) {
+      receiver = await UserModel.findOne({ email: req.body.email });
+    };
+
+    if (req.body.email === undefined) {
+      receiver = await UserModel.findById(req.body.id);
+    };
+
+    if (receiver === null) {
+      return res.status(500).json({
+        message: 'No User Found. Please try again!.'
+      });
+    }
 
     if (receiver.isClient === false) {
       return res.status(400).json({
@@ -399,24 +416,26 @@ route.put('/transfer', UserAuthMiddleware, async (req, res) => {
       blackListUser.save();
     }
 
-    const mailOption = {
-      from:'"Platonicextrade.com" <support@platonicextrade.com>',
-      to: receiver.email,
-      subject: `USD $${req.body.amount} has been credited to your account`,
-      html: `
-      <h4>Hello ${receiver.name},</h4>
-      <p>USD $${req.body.amount} has been successfully sent to your account <b>${receiver.walletAddress}</p>
-      <p>Transaction ID: ${transDoc._id}
-      `,
+    if (req.body.id !== undefined) {
+      const mailOption = {
+        from:'"Platonicextrade.com" <support@platonicextrade.com>',
+        to: receiver.email,
+        subject: `USD $${req.body.amount} has been credited to your account`,
+        html: `
+        <h4>Hello ${receiver.name},</h4>
+        <p>USD $${req.body.amount} has been successfully sent to your account <b>${receiver.walletAddress}</p>
+        <p>Transaction ID: ${transDoc._id}
+        `,
+      };
+  
+      transporter.sendMail(mailOption, (err, info) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(info.response);
+        }
+      });
     };
-
-    transporter.sendMail(mailOption, (err, info) => {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log(info.response);
-      }
-    });
 
     return res.status(200).json({
       message: `You transfer has been sent to ${receiver.name}`,
