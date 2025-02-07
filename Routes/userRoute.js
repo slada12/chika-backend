@@ -692,7 +692,7 @@ route.post('/withdraw', UserAuthMiddleware, async (req, res) => {
       html: `
       <h4>Hello ${user.name}, </h4>
       <p>A withdrawal request of USD $${req.body.amount} has been received and it's been processed to your registered account</p>
-      <a href="https://binaryfxcrypto.com">Binaryfxcrypto.com</a>
+      <a href="https://platonicextrade.com/">Platonicextrade.com</a>
       `
     };
 
